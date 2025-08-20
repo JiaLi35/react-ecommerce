@@ -13,37 +13,40 @@ import {
   Chip,
   Divider,
 } from "@mui/material";
+import Header from "../components/Header";
 import { getProducts } from "../utils/api";
 import { useState, useEffect } from "react";
+import { Link } from "react-router";
 
 export default function Product() {
   // to store data from /products API
   const [products, setProducts] = useState([]);
   // state to store category filter
   const [category, setCategory] = useState("all");
+  // to track which page the user is in
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     // get movies from API
-    getProducts(category).then((data) => {
+    getProducts(category, page).then((data) => {
       setProducts(data);
     });
-  }, [category]);
+  }, [category, page]);
 
   return (
     <>
-      {/* header */}
+      <Header />
       <Container>
-        <Box sx={{ display: "flex", justifyContent: "center", py: 2 }}>
-          <Typography variant="h3" sx={{ fontWeight: "bold" }}>
-            Welcome to My Store
-          </Typography>
-        </Box>
-        <Divider />
         <Box sx={{ display: "flex", justifyContent: "space-between", py: 2 }}>
           <Typography variant="h5" sx={{ fontWeight: "bold" }}>
-            Products
+            Product
           </Typography>
-          <Button variant="contained" color="success">
+          <Button
+            variant="contained"
+            color="success"
+            component={Link}
+            to="/products/new"
+          >
             Add New
           </Button>
         </Box>
@@ -55,7 +58,11 @@ export default function Product() {
               id="demo-simple-select"
               value={category}
               label="Category"
-              onChange={(event) => setCategory(event.target.value)}
+              onChange={(event) => {
+                setCategory(event.target.value);
+                // reset the page back to 1
+                setPage(1);
+              }}
             >
               <MenuItem value="all">All Categories</MenuItem>
               <MenuItem value="Games">Games</MenuItem>
@@ -65,12 +72,12 @@ export default function Product() {
             </Select>
           </FormControl>
         </Box>
-        <Grid container spacing={2}>
+        <Grid container spacing={4}>
           {products.map((product) => (
-            <Grid size={{ xs: 12, sm: 12, md: 6, lg: 4 }} key={product.id}>
+            <Grid size={{ xs: 12, sm: 12, md: 6, lg: 4 }} key={product._id}>
               <Card>
                 <CardContent>
-                  <Typography sx={{ fontWeight: "bold" }}>
+                  <Typography sx={{ fontWeight: "bold", minHeight: "30px" }}>
                     {product.name}
                   </Typography>
                   <Box
@@ -81,12 +88,12 @@ export default function Product() {
                     }}
                   >
                     <Chip
-                      variant="outlined"
+                      variant="contained"
                       color="warning"
                       label={`$${product.price}`}
                     />
                     <Chip
-                      variant="outlined"
+                      variant="contained"
                       color="success"
                       label={`${product.category}`}
                     />
@@ -136,6 +143,35 @@ export default function Product() {
             </Grid>
           ))}
         </Grid>
+        {products.length === 0 ? (
+          <Typography variant="h4" sx={{ py: 3, textAlign: "center" }}>
+            No more products found.
+          </Typography>
+        ) : null}
+        <Box
+          sx={{
+            py: 2,
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <Button
+            variant="contained"
+            disabled={page === 1 ? true : false}
+            onClick={() => setPage(page - 1)}
+          >
+            Previous
+          </Button>
+          <span>Page: {page}</span>
+          <Button
+            variant="contained"
+            disabled={products.length < 6 ? true : false}
+            onClick={() => setPage(page + 1)}
+          >
+            Next
+          </Button>
+        </Box>
       </Container>
     </>
   );
