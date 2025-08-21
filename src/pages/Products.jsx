@@ -14,11 +14,15 @@ import {
   Divider,
 } from "@mui/material";
 import Header from "../components/Header";
-import { getProducts } from "../utils/api";
+import { deleteProduct, getProducts } from "../utils/api_products";
 import { useState, useEffect } from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
+import Swal from "sweetalert2";
+import { toast } from "sonner";
+import { AddToCart } from "../utils/cart";
 
 export default function Product() {
+  const navigate = useNavigate();
   // to store data from /products API
   const [products, setProducts] = useState([]);
   // state to store category filter
@@ -33,9 +37,45 @@ export default function Product() {
     });
   }, [category, page]);
 
+  const handleProductDelete = async (id) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    }).then(async (result) => {
+      // once user confirm, then we delete the product
+      if (result.isConfirmed) {
+        // delete product in the backend
+        await deleteProduct(id);
+        // method #1: remove from the state manually
+        // delete the product from the state
+        // setProducts(products.filter((p) => p._id !== id));
+
+        // method #2: get the new data from the backend
+        const updatedProducts = await getProducts(category, page);
+        setProducts(updatedProducts);
+        toast.success("Product has been deleted");
+      }
+    });
+  };
+
+  const handleAddToCart = async (product) => {
+    try {
+      await AddToCart(product);
+      navigate("/cart");
+    } catch (error) {
+      toast.error(error.message);
+      console.log(error);
+    }
+  };
+
   return (
     <>
-      <Header />
+      <Header title="Welcome to My Store" />
       <Container>
         <Box sx={{ display: "flex", justifyContent: "space-between", py: 2 }}>
           <Typography variant="h5" sx={{ fontWeight: "bold" }}>
@@ -90,7 +130,7 @@ export default function Product() {
                     <Chip
                       variant="contained"
                       color="warning"
-                      label={`$${product.price}`}
+                      label={"$" + product.price}
                     />
                     <Chip
                       variant="contained"
@@ -103,6 +143,9 @@ export default function Product() {
                     color="primary"
                     sx={{
                       width: "100%",
+                    }}
+                    onClick={() => {
+                      handleAddToCart(product);
                     }}
                   >
                     Add to Cart
@@ -123,6 +166,8 @@ export default function Product() {
                         textTransform: "capitalize",
                         fontSize: "14px",
                       }}
+                      component={Link}
+                      to={`/products/${product._id}/edit`}
                     >
                       Edit
                     </Button>
@@ -133,6 +178,9 @@ export default function Product() {
                         borderRadius: 5,
                         textTransform: "capitalize",
                         fontSize: "14px",
+                      }}
+                      onClick={() => {
+                        handleProductDelete(product._id);
                       }}
                     >
                       Delete
@@ -166,7 +214,7 @@ export default function Product() {
           <span>Page: {page}</span>
           <Button
             variant="contained"
-            disabled={products.length < 6 ? true : false}
+            disabled={products.length < 1 ? true : false}
             onClick={() => setPage(page + 1)}
           >
             Next

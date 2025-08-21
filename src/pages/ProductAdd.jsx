@@ -11,7 +11,7 @@ import {
   Select,
 } from "@mui/material";
 import { useState, useEffect } from "react";
-import { addProduct } from "../utils/api";
+import { addProduct } from "../utils/api_products";
 import { toast } from "sonner";
 import { useNavigate } from "react-router";
 
@@ -91,7 +91,6 @@ const ProductAdd = () => {
                 setCategory(event.target.value);
               }}
             >
-              <MenuItem value="all">All Categories</MenuItem>
               <MenuItem value="Games">Games</MenuItem>
               <MenuItem value="Consoles">Consoles</MenuItem>
               <MenuItem value="Accessories">Accessories</MenuItem>
