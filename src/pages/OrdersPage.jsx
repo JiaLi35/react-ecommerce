@@ -14,8 +14,10 @@ import {
   MenuItem,
   Box,
 } from "@mui/material";
-import { getOrders } from "../utils/api_orders";
+import { getOrders, updateOrder, deleteOrder } from "../utils/api_orders";
 import { useState, useEffect } from "react";
+import Swal from "sweetalert2";
+import { toast } from "sonner";
 
 const OrdersPage = () => {
   // store orders data from API
@@ -32,6 +34,32 @@ const OrdersPage = () => {
         console.log(error);
       });
   }, []); // call only once when the page loads
+
+  const handleOrderDelete = async (id) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    }).then(async (result) => {
+      // once user confirm, then we delete the product
+      if (result.isConfirmed) {
+        // delete product in the backend
+        await deleteOrder(id);
+        // method #1: remove from the state manually
+        // delete the product from the state
+        // setProducts(products.filter((p) => p._id !== id));
+
+        // method #2: get the new data from the backend
+        const updatedOrders = await getOrders();
+        setOrders(updatedOrders);
+        toast.success("Order has been deleted");
+      }
+    });
+  };
 
   return (
     <>
@@ -72,7 +100,9 @@ const OrdersPage = () => {
                       <TableCell>
                         <Select
                           defaultValue={order.status}
-                          // onChange={handleChange}
+                          onChange={async (e) => {
+                            await updateOrder(order._id, e.target.value);
+                          }}
                           disabled={order.status === "pending" ? true : false}
                         >
                           <MenuItem value="pending">Pending</MenuItem>
@@ -84,7 +114,13 @@ const OrdersPage = () => {
                       <TableCell>{order.paid_at}</TableCell>
                       <TableCell>
                         {order.status === "pending" ? (
-                          <Button variant="outlined" color="error">
+                          <Button
+                            variant="outlined"
+                            color="error"
+                            onClick={() => {
+                              handleOrderDelete(order._id);
+                            }}
+                          >
                             Delete
                           </Button>
                         ) : (

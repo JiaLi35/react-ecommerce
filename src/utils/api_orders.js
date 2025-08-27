@@ -6,6 +6,18 @@ export const getOrders = async () => {
   return response.data;
 };
 
+export const updateOrder = async (id, status) => {
+  const response = await axios.put(API_URL + "orders/" + id, {
+    status,
+  });
+  return response.data;
+};
+
+export const deleteOrder = async (id) => {
+  const response = await axios.delete(API_URL + "orders/" + id);
+  return response.data;
+};
+
 export const createOrder = async (
   customerName,
   customerEmail,
