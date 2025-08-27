@@ -45,14 +45,10 @@ const OrdersPage = () => {
       cancelButtonColor: "#d33",
       confirmButtonText: "Yes, delete it!",
     }).then(async (result) => {
-      // once user confirm, then we delete the product
+      // once user confirm, then we delete the order
       if (result.isConfirmed) {
-        // delete product in the backend
+        // delete order in the backend
         await deleteOrder(id);
-        // method #1: remove from the state manually
-        // delete the product from the state
-        // setProducts(products.filter((p) => p._id !== id));
-
         // method #2: get the new data from the backend
         const updatedOrders = await getOrders();
         setOrders(updatedOrders);
@@ -102,10 +98,16 @@ const OrdersPage = () => {
                           defaultValue={order.status}
                           onChange={async (e) => {
                             await updateOrder(order._id, e.target.value);
+                            toast.success("Order status has been updated");
                           }}
                           disabled={order.status === "pending" ? true : false}
                         >
-                          <MenuItem value="pending">Pending</MenuItem>
+                          <MenuItem
+                            value="pending"
+                            disabled={order.status !== "pending" ? true : false}
+                          >
+                            Pending
+                          </MenuItem>
                           <MenuItem value="failed">Failed</MenuItem>
                           <MenuItem value="completed">Completed</MenuItem>
                           <MenuItem value="paid">Paid</MenuItem>
