@@ -1,7 +1,7 @@
 import { Box, Button, Typography } from "@mui/material";
 import { Link } from "react-router";
 
-const Header = ({ title }) => {
+const Header = ({ title, current }) => {
   return (
     <Box
       sx={{ textAlign: "center", py: 4, mb: 3, borderBottom: "1px solid #ddd" }}
@@ -11,7 +11,7 @@ const Header = ({ title }) => {
       </Typography>
       <Box>
         <Button
-          variant="contained"
+          variant={current === "home" ? "contained" : "outlined"}
           color="primary"
           to="/"
           component={Link}
@@ -20,13 +20,22 @@ const Header = ({ title }) => {
           Home
         </Button>
         <Button
-          variant="contained"
+          variant={current === "cart" ? "contained" : "outlined"}
           color="primary"
           to="/cart"
           component={Link}
           sx={{ m: 1 }}
         >
           Cart
+        </Button>
+        <Button
+          variant={current === "orders" ? "contained" : "outlined"}
+          color="primary"
+          to="/orders"
+          component={Link}
+          sx={{ m: 1 }}
+        >
+          My Orders
         </Button>
       </Box>
     </Box>

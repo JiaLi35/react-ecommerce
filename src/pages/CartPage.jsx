@@ -9,49 +9,39 @@ import {
   Paper,
   Typography,
   Button,
-  Divider,
   Box,
 } from "@mui/material";
 import Header from "../components/Header";
 import { useState } from "react";
-import { deleteItemFromCart } from "../utils/cart";
+import { getCart, updateCart } from "../utils/cart";
 import Swal from "sweetalert2";
-import { useNavigate } from "react-router";
+import { Link } from "react-router";
 
 const CartPage = () => {
-  const navigate = useNavigate();
   // 3. load the cart data from local storage
-  const cartLocalStorage = localStorage.getItem("cartlist");
   // 4. create a state to store the cart data from local storage
-  const [cart, setCart] = useState(
-    cartLocalStorage ? JSON.parse(cartLocalStorage) : []
-  );
-  let cartTotal = 0;
-  for (let i = 0; i < cart.length; i++) {
-    cartTotal += cart[i].price * cart[i].quantity;
-  }
+  const [cart, setCart] = useState(getCart());
 
-  const handleProductDelete = async (id) => {
-    Swal.fire({
-      title: "Are you sure?",
-      text: "You won't be able to revert this!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!",
-    }).then(async (result) => {
-      // once user confirm, then we delete the product
-      if (result.isConfirmed) {
-        const updatedCart = deleteItemFromCart(id);
-        setCart(updatedCart);
-      }
+  const getCartTotal = () => {
+    let total = 0;
+    cart.forEach((product) => {
+      total += product.quantity * product.price;
     });
+    return total;
+  };
+
+  const removeItemFromCart = (product) => {
+    // 1. remove product from cart
+    const updatedCart = cart.filter((item) => item._id !== product._id);
+    // 2. update the cart data in local storage and the state
+    updateCart(updatedCart);
+    // 3. update the state
+    setCart(updatedCart);
   };
 
   return (
     <>
-      <Header title="Cart" />
+      <Header title="Cart" current="cart" />
       <Container sx={{ textAlign: "center" }}>
         Cart Page
         <TableContainer component={Paper}>
@@ -80,13 +70,13 @@ const CartPage = () => {
                       <TableCell align="right">{"$" + p.price}</TableCell>
                       <TableCell align="right">{p.quantity}</TableCell>
                       <TableCell align="right">
-                        {p.price * p.quantity}
+                        ${(p.price * p.quantity).toFixed(2)}
                       </TableCell>
                       <TableCell align="right">
                         <Button
                           variant="contained"
                           color="error"
-                          onClick={() => handleProductDelete(p._id)}
+                          onClick={() => removeItemFromCart(p)}
                         >
                           Remove
                         </Button>
@@ -96,26 +86,24 @@ const CartPage = () => {
                 </>
               )}
               <TableRow>
-                <TableCell rowSpan={1} />
-                <TableCell
-                  align="right"
-                  colSpan={3}
-                  sx={{ fontWeight: "bold" }}
-                >
-                  {"$" + cartTotal.toFixed(2)}
-                </TableCell>
+                <TableCell colSpan={3} />
+                <TableCell align="right">${getCartTotal()}</TableCell>
               </TableRow>
             </TableBody>
           </Table>
         </TableContainer>
-        <Button
-          variant="contained"
-          color="primary"
-          textAlign="right"
-          sx={{ my: 2 }}
-        >
-          Checkout
-        </Button>
+        <Box sx={{ pt: 3, display: "flex", justifyContent: "flex-end" }}>
+          <Button
+            variant="contained"
+            color="primary"
+            component={Link}
+            to="/checkout"
+            // disable the checkout page if no item found in cart
+            disabled={cart.length === 0 ? true : false}
+          >
+            Checkout
+          </Button>
+        </Box>
       </Container>
     </>
   );

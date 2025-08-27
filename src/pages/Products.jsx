@@ -75,7 +75,7 @@ export default function Product() {
 
   return (
     <>
-      <Header title="Welcome to My Store" />
+      <Header title="Welcome to My Store" current="home" />
       <Container>
         <Box sx={{ display: "flex", justifyContent: "space-between", py: 2 }}>
           <Typography variant="h5" sx={{ fontWeight: "bold" }}>
