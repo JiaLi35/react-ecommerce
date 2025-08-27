@@ -1,6 +1,11 @@
 import axios from "axios";
 import { API_URL } from "./constants";
 
+export const getOrders = async () => {
+  const response = await axios.get(API_URL + "orders");
+  return response.data;
+};
+
 export const createOrder = async (
   customerName,
   customerEmail,

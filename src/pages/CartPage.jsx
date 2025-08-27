@@ -14,7 +14,6 @@ import {
 import Header from "../components/Header";
 import { useState } from "react";
 import { getCart, updateCart } from "../utils/cart";
-import Swal from "sweetalert2";
 import { Link } from "react-router";
 
 const CartPage = () => {
