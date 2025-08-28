@@ -14,6 +14,22 @@ import { useState, useEffect } from "react";
 import { getProduct, updateProduct } from "../utils/api_products";
 import { toast } from "sonner";
 import { useNavigate, useParams, Link } from "react-router";
+import { styled } from "@mui/material/styles";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import { uploadImage } from "../utils/api_image";
+import { API_URL } from "../utils/constants";
+
+const VisuallyHiddenInput = styled("input")({
+  clip: "rect(0 0 0 0)",
+  clipPath: "inset(50%)",
+  height: 1,
+  overflow: "hidden",
+  position: "absolute",
+  bottom: 0,
+  left: 0,
+  whiteSpace: "nowrap",
+  width: 1,
+});
 
 const ProductEdit = () => {
   const { id } = useParams(); // retrieve id from the url
@@ -23,6 +39,7 @@ const ProductEdit = () => {
   const [price, setPrice] = useState(0);
   const [category, setCategory] = useState("");
   const [error, setError] = useState(null);
+  const [image, setImage] = useState(null);
 
   // load the product data from the backend api, then assign it to the state
   useEffect(() => {
@@ -35,6 +52,7 @@ const ProductEdit = () => {
           setDescription(productData ? productData.description : "");
           setPrice(productData ? productData.price : 0);
           setCategory(productData ? productData.category : "");
+          setImage(productData ? productData.image : null);
         } else {
           // if not available, set error message
           setError("Product not found");
@@ -53,7 +71,7 @@ const ProductEdit = () => {
 
     try {
       // 2. trigger the API to update product
-      await updateProduct(id, name, description, price, category);
+      await updateProduct(id, name, description, price, category, image);
       // 3. if successful, redirect user back to home page and show success message
       toast("Product has been updated successfully");
       navigate("/");
@@ -138,6 +156,42 @@ const ProductEdit = () => {
               <MenuItem value="Subscriptions">Subscriptions</MenuItem>
             </Select>
           </FormControl>
+        </Box>
+        <Box mb={2} sx={{ display: "flex", gap: "10px", alignItems: "center" }}>
+          {image ? (
+            <>
+              <img src={API_URL + image} width="200px" />
+              <Button
+                color="info"
+                variant="contained"
+                size="small"
+                onClick={() => setImage(null)}
+              >
+                Remove
+              </Button>
+            </>
+          ) : (
+            <Button
+              component="label"
+              role={undefined}
+              variant="contained"
+              tabIndex={-1}
+              startIcon={<CloudUploadIcon />}
+            >
+              Upload image
+              <VisuallyHiddenInput
+                type="file"
+                onChange={async (event) => {
+                  const data = await uploadImage(event.target.files[0]);
+                  console.log(data);
+                  // {image_url: "uploads\\image.jpg"}
+                  // set the image url into state
+                  setImage(data.image_url);
+                }}
+                accept="image/*"
+              />
+            </Button>
+          )}
         </Box>
         <Box mb={2}>
           <Button

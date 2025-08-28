@@ -11,7 +11,7 @@ import {
   Card,
   CardContent,
   Chip,
-  Divider,
+  CardMedia,
 } from "@mui/material";
 import Header from "../components/Header";
 import { deleteProduct, getProducts } from "../utils/api_products";
@@ -20,6 +20,7 @@ import { Link, useNavigate } from "react-router";
 import Swal from "sweetalert2";
 import { toast } from "sonner";
 import { AddToCart } from "../utils/cart";
+import { API_URL } from "../utils/constants";
 
 export default function Product() {
   const navigate = useNavigate();
@@ -39,7 +40,7 @@ export default function Product() {
 
   const handleProductDelete = async (id) => {
     Swal.fire({
-      title: "Are you sure?",
+      title: "Are you sure you want to delete this product?",
       text: "You won't be able to revert this!",
       icon: "warning",
       showCancelButton: true,
@@ -116,6 +117,17 @@ export default function Product() {
           {products.map((product) => (
             <Grid size={{ xs: 12, sm: 12, md: 6, lg: 4 }} key={product._id}>
               <Card>
+                <CardMedia
+                  component="img"
+                  height="200"
+                  image={
+                    API_URL +
+                    (product.image
+                      ? product.image
+                      : "uploads/default_image.png")
+                  }
+                />
+
                 <CardContent>
                   <Typography sx={{ fontWeight: "bold", minHeight: "30px" }}>
                     {product.name}

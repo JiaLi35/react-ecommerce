@@ -6,6 +6,7 @@ import CartPage from "./pages/CartPage";
 import CheckoutPage from "./pages/CheckoutPage";
 import PaymentVerify from "./pages/PaymentVerify";
 import OrdersPage from "./pages/OrdersPage";
+import CategoriesPage from "./pages/CategoriesPage";
 import { Toaster } from "sonner";
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/verify-payment" element={<PaymentVerify />} />
           <Route path="/orders" element={<OrdersPage />} />
+          <Route path="/categories" element={<CategoriesPage />} />
         </Routes>
         <Toaster />
       </BrowserRouter>

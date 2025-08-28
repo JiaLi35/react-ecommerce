@@ -35,7 +35,7 @@ const CheckoutPage = () => {
     cart.forEach((product) => {
       total += product.quantity * product.price;
     });
-    return total;
+    return total.toFixed(2);
   };
 
   const handleCheckout = async () => {

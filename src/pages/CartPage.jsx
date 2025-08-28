@@ -26,7 +26,7 @@ const CartPage = () => {
     cart.forEach((product) => {
       total += product.quantity * product.price;
     });
-    return total;
+    return total.toFixed(2);
   };
 
   const removeItemFromCart = (product) => {

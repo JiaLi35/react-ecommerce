@@ -37,6 +37,15 @@ const Header = ({ title, current }) => {
         >
           My Orders
         </Button>
+        <Button
+          variant={current === "categories" ? "contained" : "outlined"}
+          color="primary"
+          to="/categories"
+          component={Link}
+          sx={{ m: 1 }}
+        >
+          Categories
+        </Button>
       </Box>
     </Box>
   );

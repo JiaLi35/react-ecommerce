@@ -14,6 +14,7 @@ import {
   MenuItem,
   Box,
 } from "@mui/material";
+import CircularProgress from "@mui/material/CircularProgress";
 import { getOrders, updateOrder, deleteOrder } from "../utils/api_orders";
 import { useState, useEffect } from "react";
 import Swal from "sweetalert2";
@@ -22,6 +23,7 @@ import { toast } from "sonner";
 const OrdersPage = () => {
   // store orders data from API
   const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   // Call the API
   useEffect(() => {
@@ -35,9 +37,18 @@ const OrdersPage = () => {
       });
   }, []); // call only once when the page loads
 
+  const handleOrderStatusUpdate = async (id, newStatus) => {
+    setLoading(true);
+    await updateOrder(id, newStatus);
+    const updatedOrders = await getOrders();
+    setOrders(updatedOrders);
+    toast.success("Order status has been updated");
+    setLoading(false);
+  };
+
   const handleOrderDelete = async (id) => {
     Swal.fire({
-      title: "Are you sure?",
+      title: "Are you sure you want to delete this order?",
       text: "You won't be able to revert this!",
       icon: "warning",
       showCancelButton: true,
@@ -89,33 +100,36 @@ const OrdersPage = () => {
                       </TableCell>
                       <TableCell>
                         {order.products.map((p) => (
-                          <Box>{p.name}</Box>
+                          <Box key={p._id}>{p.name}</Box>
                         ))}
                       </TableCell>
                       <TableCell>{"$" + order.totalPrice}</TableCell>
                       <TableCell>
-                        <Select
-                          defaultValue={order.status}
-                          onChange={async (e) => {
-                            await updateOrder(order._id, e.target.value);
-                            toast.success("Order status has been updated");
-                          }}
-                          disabled={order.status === "pending" ? true : false}
-                        >
-                          <MenuItem
-                            value="pending"
-                            disabled={order.status !== "pending" ? true : false}
+                        {loading ? (
+                          <CircularProgress color="inherit" />
+                        ) : (
+                          <Select
+                            defaultValue={order.status}
+                            onChange={(e) => {
+                              handleOrderStatusUpdate(
+                                order._id,
+                                e.target.value
+                              );
+                            }}
+                            disabled={order.status === "pending" ? true : false}
                           >
-                            Pending
-                          </MenuItem>
-                          <MenuItem value="failed">Failed</MenuItem>
-                          <MenuItem value="completed">Completed</MenuItem>
-                          <MenuItem value="paid">Paid</MenuItem>
-                        </Select>
+                            <MenuItem value="pending" disabled>
+                              Pending
+                            </MenuItem>
+                            <MenuItem value="failed">Failed</MenuItem>
+                            <MenuItem value="completed">Completed</MenuItem>
+                            <MenuItem value="paid">Paid</MenuItem>
+                          </Select>
+                        )}
                       </TableCell>
                       <TableCell>{order.paid_at}</TableCell>
                       <TableCell>
-                        {order.status === "pending" ? (
+                        {order.status === "pending" && (
                           <Button
                             variant="outlined"
                             color="error"
@@ -125,8 +139,6 @@ const OrdersPage = () => {
                           >
                             Delete
                           </Button>
-                        ) : (
-                          <></>
                         )}
                       </TableCell>
                     </TableRow>
