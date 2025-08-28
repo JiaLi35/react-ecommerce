@@ -7,10 +7,14 @@ import {
   TextField,
   Button,
   InputLabel,
+  Typography,
 } from "@mui/material";
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import ListItemText from "@mui/material/ListItemText";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
 import {
   getCategories,
   getCategory,
@@ -107,13 +111,16 @@ const CategoriesPage = () => {
     <>
       <Header current="categories" title="Manage Categories" />
       <Container maxWidth="lg" sx={{ py: 2 }}>
+        <Typography variant="h5" mb={2}>
+          Categories
+        </Typography>
         <Paper
           elevation={3}
           sx={{
             p: "20px",
+            mb: 3,
           }}
         >
-          <InputLabel>Add New Category</InputLabel>
           <Box
             sx={{
               display: "flex",
@@ -124,7 +131,7 @@ const CategoriesPage = () => {
           >
             <TextField
               fullWidth
-              label="Category"
+              label="Category Name"
               variant="outlined"
               value={label}
               onChange={(event) => setLabel(event.target.value)}
@@ -138,44 +145,55 @@ const CategoriesPage = () => {
             </Button>
           </Box>
         </Paper>
-        <Paper
-          elevation={3}
-          sx={{
-            p: "20px",
-            mt: "20px",
-          }}
-        >
-          <InputLabel>Categories</InputLabel>
-          <List sx={{ width: "100%" }}>
-            {categories.map((category) => (
-              <ListItem
-                key={category._id}
-                disableGutters
-                divider
-                secondaryAction={
-                  <Box sx={{ display: "flex", gap: "10px" }}>
-                    <Button
-                      color="primary"
-                      variant="contained"
-                      onClick={() => handleUpdateCategory(category._id)}
+
+        <TableContainer component={Paper}>
+          <Table sx={{ minWidth: 650 }} aria-label="simple table">
+            <TableHead>
+              <TableRow>
+                <TableCell>Name</TableCell>
+                <TableCell align="right" sx={{ paddingRight: "130px" }}>
+                  Actions
+                </TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {categories.map((category) => (
+                <TableRow
+                  key={category._id}
+                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                >
+                  <TableCell component="th" scope="category">
+                    {category.label}
+                  </TableCell>
+                  <TableCell>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        gap: "10px",
+                        justifyContent: "flex-end",
+                      }}
                     >
-                      Edit
-                    </Button>
-                    <Button
-                      color="error"
-                      variant="contained"
-                      onClick={() => handleDeleteCategory(category._id)}
-                    >
-                      Delete
-                    </Button>
-                  </Box>
-                }
-              >
-                <ListItemText primary={`${category.label}`} />
-              </ListItem>
-            ))}
-          </List>
-        </Paper>
+                      <Button
+                        color="primary"
+                        variant="contained"
+                        onClick={() => handleUpdateCategory(category._id)}
+                      >
+                        Edit
+                      </Button>
+                      <Button
+                        color="error"
+                        variant="contained"
+                        onClick={() => handleDeleteCategory(category._id)}
+                      >
+                        Delete
+                      </Button>
+                    </Box>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
       </Container>
     </>
   );
