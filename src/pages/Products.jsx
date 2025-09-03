@@ -21,22 +21,31 @@ import Swal from "sweetalert2";
 import { toast } from "sonner";
 import { AddToCart } from "../utils/cart";
 import { API_URL } from "../utils/constants";
+import { getCategories } from "../utils/api_categories";
 
 export default function Product() {
   const navigate = useNavigate();
   // to store data from /products API
   const [products, setProducts] = useState([]);
-  // state to store category filter
+  // to store data from categories API
+  const [categories, setCategories] = useState([]);
+  // state to store selected category filter
   const [category, setCategory] = useState("all");
   // to track which page the user is in
   const [page, setPage] = useState(1);
 
   useEffect(() => {
-    // get movies from API
+    // get products from API
     getProducts(category, page).then((data) => {
       setProducts(data);
     });
   }, [category, page]);
+
+  useEffect(() => {
+    getCategories().then((data) => {
+      setCategories(data);
+    });
+  }, []);
 
   const handleProductDelete = async (id) => {
     Swal.fire({
@@ -52,10 +61,6 @@ export default function Product() {
       if (result.isConfirmed) {
         // delete product in the backend
         await deleteProduct(id);
-        // method #1: remove from the state manually
-        // delete the product from the state
-        // setProducts(products.filter((p) => p._id !== id));
-
         // method #2: get the new data from the backend
         const updatedProducts = await getProducts(category, page);
         setProducts(updatedProducts);
@@ -106,10 +111,9 @@ export default function Product() {
               }}
             >
               <MenuItem value="all">All Categories</MenuItem>
-              <MenuItem value="Games">Games</MenuItem>
-              <MenuItem value="Consoles">Consoles</MenuItem>
-              <MenuItem value="Accessories">Accessories</MenuItem>
-              <MenuItem value="Subscriptions">Subscriptions</MenuItem>
+              {categories.map((cat) => (
+                <MenuItem value={cat._id}>{cat.label}</MenuItem>
+              ))}
             </Select>
           </FormControl>
         </Box>
@@ -127,7 +131,6 @@ export default function Product() {
                       : "uploads/default_image.png")
                   }
                 />
-
                 <CardContent>
                   <Typography sx={{ fontWeight: "bold", minHeight: "30px" }}>
                     {product.name}
@@ -147,7 +150,9 @@ export default function Product() {
                     <Chip
                       variant="contained"
                       color="success"
-                      label={`${product.category}`}
+                      label={`${
+                        product.category ? product.category.label : ""
+                      }`}
                     />
                   </Box>
                   <Button
