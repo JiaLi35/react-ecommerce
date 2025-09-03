@@ -11,20 +11,29 @@ import { useState } from "react";
 import { login } from "../utils/api_auth";
 import { toast } from "sonner";
 import { useNavigate } from "react-router";
+import validator from "email-validator";
+import { useCookies } from "react-cookie";
 
 const LoginPage = () => {
   const navigate = useNavigate();
+  const [cookies, setCookie, removeCookie] = useCookies(["currentuser"]);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const handleLogin = async () => {
     if (!email || !password) {
       toast.error("Please fill in all the fields.");
+    } else if (!validator.validate(email)) {
+      // 2. make sure the email is valid
+      toast.error("Please use a valid email address");
     } else {
       try {
         const userData = await login(email, password);
+        // set cookies
+        setCookie("currentuser", userData, {
+          maxAge: 60 * 60 * 8, // cookie expires in 8 hours
+        });
         toast("Successfully logged in.");
-        console.log(userData);
         navigate("/");
       } catch (error) {
         console.log(error);
@@ -53,6 +62,7 @@ const LoginPage = () => {
           <Box mb={2}>
             <TextField
               placeholder="Password"
+              type="password"
               fullWidth
               value={password}
               onChange={(event) => {
