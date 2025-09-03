@@ -6,7 +6,7 @@ const Header = ({ title, current }) => {
     <Box
       sx={{ textAlign: "center", py: 4, mb: 3, borderBottom: "1px solid #ddd" }}
     >
-      <Typography variant="h3" sx={{ fontWeight: "bold" }}>
+      <Typography variant="h3" sx={{ fontWeight: "bold", mb: 2 }}>
         {title}
       </Typography>
       <Box>
@@ -45,6 +45,24 @@ const Header = ({ title, current }) => {
           sx={{ m: 1 }}
         >
           Categories
+        </Button>
+        <Button
+          variant={current === "login" ? "contained" : "outlined"}
+          color="primary"
+          to="/login"
+          component={Link}
+          sx={{ m: 1 }}
+        >
+          Login
+        </Button>
+        <Button
+          variant={current === "signup" ? "contained" : "outlined"}
+          color="primary"
+          to="/signup"
+          component={Link}
+          sx={{ m: 1 }}
+        >
+          Sign Up
         </Button>
       </Box>
     </Box>

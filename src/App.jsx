@@ -7,6 +7,8 @@ import CheckoutPage from "./pages/CheckoutPage";
 import PaymentVerify from "./pages/PaymentVerify";
 import OrdersPage from "./pages/OrdersPage";
 import CategoriesPage from "./pages/CategoriesPage";
+import LoginPage from "./pages/LoginPage";
+import SignupPage from "./pages/SignupPage";
 import { Toaster } from "sonner";
 
 function App() {
@@ -15,6 +17,8 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Products />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<SignupPage />} />
           <Route path="/products/new" element={<ProductAdd />} />
           <Route path="/products/:id/edit" element={<ProductEdit />} />
           <Route path="/cart" element={<CartPage />} />
