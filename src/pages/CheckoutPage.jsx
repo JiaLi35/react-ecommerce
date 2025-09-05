@@ -21,13 +21,17 @@ import { toast } from "sonner";
 import Header from "../components/Header";
 import { getCart } from "../utils/cart";
 import { createOrder } from "../utils/api_orders";
+import { useCookies } from "react-cookie";
 
 const CheckoutPage = () => {
+  const [cookies] = useCookies(["currentuser"]);
+  const { currentuser = {} } = cookies; // assign empty object to avoid error if user not logged in
+  const { token = "", email = "", name = "" } = currentuser;
   // 3. load the cart data from local storage
   // 4. create a state to store the cart data from local storage
   const [cart, setCart] = useState(getCart());
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
+  // const [name, setName] = useState("");
+  // const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
 
   const getCartTotal = () => {
@@ -80,7 +84,7 @@ const CheckoutPage = () => {
                 variant="outlined"
                 fullWidth
                 value={name}
-                onChange={(event) => setName(event.target.value)}
+                // onChange={(event) => setName(event.target.value)}
               />
             </Box>
             <Box mb={2}>
@@ -89,7 +93,7 @@ const CheckoutPage = () => {
                 variant="outlined"
                 fullWidth
                 value={email}
-                onChange={(event) => setEmail(event.target.value)}
+                // onChange={(event) => setEmail(event.target.value)}
               />
             </Box>
             <Box mb={2}>

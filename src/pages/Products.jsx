@@ -22,9 +22,13 @@ import { toast } from "sonner";
 import { AddToCart } from "../utils/cart";
 import { API_URL } from "../utils/constants";
 import { getCategories } from "../utils/api_categories";
+import { useCookies } from "react-cookie";
 
 export default function Product() {
   const navigate = useNavigate();
+  const [cookies] = useCookies(["currentuser"]);
+  const { currentuser = {} } = cookies; // assign empty object to avoid error if user not logged in
+  const { token = "" } = currentuser;
   // to store data from /products API
   const [products, setProducts] = useState([]);
   // to store data from categories API
@@ -60,7 +64,7 @@ export default function Product() {
       // once user confirm, then we delete the product
       if (result.isConfirmed) {
         // delete product in the backend
-        await deleteProduct(id);
+        await deleteProduct(id, token);
         // method #2: get the new data from the backend
         const updatedProducts = await getProducts(category, page);
         setProducts(updatedProducts);
@@ -87,14 +91,16 @@ export default function Product() {
           <Typography variant="h5" sx={{ fontWeight: "bold" }}>
             Product
           </Typography>
-          <Button
-            variant="contained"
-            color="success"
-            component={Link}
-            to="/products/new"
-          >
-            Add New
-          </Button>
+          {currentuser.role === "admin" ? (
+            <Button
+              variant="contained"
+              color="success"
+              component={Link}
+              to="/products/new"
+            >
+              Add New
+            </Button>
+          ) : null}
         </Box>
         <Box sx={{ py: 2 }}>
           <FormControl>
@@ -167,42 +173,44 @@ export default function Product() {
                   >
                     Add to Cart
                   </Button>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      gap: 2,
-                      mt: 2,
-                    }}
-                  >
-                    <Button
-                      variant="contained"
-                      color="info"
+                  {currentuser.role === "admin" ? (
+                    <Box
                       sx={{
-                        borderRadius: 5,
-                        textTransform: "capitalize",
-                        fontSize: "14px",
-                      }}
-                      component={Link}
-                      to={`/products/${product._id}/edit`}
-                    >
-                      Edit
-                    </Button>
-                    <Button
-                      variant="contained"
-                      color="error"
-                      sx={{
-                        borderRadius: 5,
-                        textTransform: "capitalize",
-                        fontSize: "14px",
-                      }}
-                      onClick={() => {
-                        handleProductDelete(product._id);
+                        display: "flex",
+                        justifyContent: "space-between",
+                        gap: 2,
+                        mt: 2,
                       }}
                     >
-                      Delete
-                    </Button>
-                  </Box>
+                      <Button
+                        variant="contained"
+                        color="info"
+                        sx={{
+                          borderRadius: 5,
+                          textTransform: "capitalize",
+                          fontSize: "14px",
+                        }}
+                        component={Link}
+                        to={`/products/${product._id}/edit`}
+                      >
+                        Edit
+                      </Button>
+                      <Button
+                        variant="contained"
+                        color="error"
+                        sx={{
+                          borderRadius: 5,
+                          textTransform: "capitalize",
+                          fontSize: "14px",
+                        }}
+                        onClick={() => {
+                          handleProductDelete(product._id);
+                        }}
+                      >
+                        Delete
+                      </Button>
+                    </Box>
+                  ) : null}
                 </CardContent>
               </Card>
             </Grid>

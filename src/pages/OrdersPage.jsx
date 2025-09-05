@@ -19,15 +19,19 @@ import { getOrders, updateOrder, deleteOrder } from "../utils/api_orders";
 import { useState, useEffect } from "react";
 import Swal from "sweetalert2";
 import { toast } from "sonner";
+import { useCookies } from "react-cookie";
 
 const OrdersPage = () => {
+  const [cookies] = useCookies(["currentuser"]);
+  const { currentuser = {} } = cookies; // assign empty object to avoid error if user not logged in
+  const { token = "" } = currentuser;
   // store orders data from API
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(false);
 
   // Call the API
   useEffect(() => {
-    getOrders()
+    getOrders(token)
       .then((data) => {
         // putting the data into orders state
         setOrders(data);
@@ -35,12 +39,12 @@ const OrdersPage = () => {
       .catch((error) => {
         console.log(error);
       });
-  }, []); // call only once when the page loads
+  }, [token]); // call only once when the page loads
 
   const handleOrderStatusUpdate = async (id, newStatus) => {
     setLoading(true);
-    await updateOrder(id, newStatus);
-    const updatedOrders = await getOrders();
+    await updateOrder(id, newStatus, token);
+    const updatedOrders = await getOrders(token);
     setOrders(updatedOrders);
     toast.success("Order status has been updated");
     setLoading(false);
@@ -59,9 +63,9 @@ const OrdersPage = () => {
       // once user confirm, then we delete the order
       if (result.isConfirmed) {
         // delete order in the backend
-        await deleteOrder(id);
+        await deleteOrder(id, token);
         // method #2: get the new data from the backend
-        const updatedOrders = await getOrders();
+        const updatedOrders = await getOrders(token);
         setOrders(updatedOrders);
         toast.success("Order has been deleted");
       }
@@ -116,7 +120,12 @@ const OrdersPage = () => {
                                 e.target.value
                               );
                             }}
-                            disabled={order.status === "pending" ? true : false}
+                            disabled={
+                              order.status === "pending" ||
+                              currentuser.role === "user"
+                                ? true
+                                : false
+                            }
                           >
                             <MenuItem value="pending" disabled>
                               Pending
@@ -129,7 +138,8 @@ const OrdersPage = () => {
                       </TableCell>
                       <TableCell>{order.paid_at}</TableCell>
                       <TableCell>
-                        {order.status === "pending" && (
+                        {order.status === "pending" &&
+                        currentuser.role === "admin" ? (
                           <Button
                             variant="outlined"
                             color="error"
@@ -139,7 +149,7 @@ const OrdersPage = () => {
                           >
                             Delete
                           </Button>
-                        )}
+                        ) : null}
                       </TableCell>
                     </TableRow>
                   ))}
